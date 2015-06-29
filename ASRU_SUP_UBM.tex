@@ -77,7 +77,7 @@ speaker recognition, deep neural networks, time delay neural networks
 \section{Introduction}
 \label{sec:intro}
 
-Modern speaker recogntion system are based on i-vectors \cite{ivector}.
+Modern speaker recogntion systems are based on i-vectors \cite{ivector}.
 In this paradigm, a universal background model (UBM) is used to collect
 sufficient statistics for i-vector extraction and a probabilistic 
 linear discriminant analysis (PLDA) backend computes a similarity score between i-vectors
@@ -88,17 +88,17 @@ the GMM-based UBM with a DNN \cite{lei2014, garcia2014}.
 Usually a DNN trained as the acoustic model in
 an automatic speech recognition (ASR) system is repurposed for
 speaker recognition, where it assumes the role of the UBM.
-In an ASR system the output layer of a DNN provides soft alignments for
+The output layer of a DNN provides soft alignments for
 phonetic content, often tied triphone states (or senones). As is standard 
 in GMM-based speaker recognition systems, these DNN posteriors are aggregated
 along with speaker recognition features to create sufficient statistics for
 i-vector extraction \cite{ivector}. The advantage of the DNN over the GMM may
 be due to its ability to directly model phonetic content, rather than an arbitrary
-acoustic space \cite{lei2014, garcia2014}. In \cite{garcia2014} it was found that
+acoustic space \cite{lei2014, kenny2014deep, garcia2014}. In \cite{garcia2014} it was found that
 improvements to DNNs in terms of ASR word error rate (WER) may translate into 
 improvements in speaker
 recognition performance. Recently, recurrent neural networks (RNN) and TDNNs \cite{tdnn} have
-outperformed traditional DNNs for a variety of LVSCR tasks \cite{lstm, saon2014, multisplice}.
+outperformed traditional DNNs for a variety of LVCSR tasks \cite{lstm, saon2014, multisplice}.
 In particular, the multisplice TDNN \cite{multisplice} had an 11\% WER
 on Switchboard, better than RNN systems on the same task. 
 Our DNN is based off of \cite{multisplice}. \davidnote{TODO: Are TDNNs ever used in
@@ -109,7 +109,7 @@ performance comes at the cost of increased computational complexity. During
 i-vector extraction, the role of the UBM is to produce frame-level posteriors.
 For a DNN, the computation is nontrivial. In a resource limited application
 that nonetheless requires realtime performance, the DNN-based system may
-not be practical. Ideally, a supervised GMM could be be created with the 
+not be practical. Ideally, a supervised GMM could be created with the 
 speed of the traditional GMM-based UBM but with heightened phonetic awareness.
 In \cite{omar2010} a GMM-based ASR acoustic model replaced the usual GMM-UBM
 to create a phonetically aware GMM, but the improvements were only consistent
@@ -117,7 +117,7 @@ during model combination \cite{omar2010}.
 
 Usually DNN-based speaker recognition systems employ a supervised-GMM
 derived from the DNN posteriors and speaker recognition features (often
-not the same as the DNN features) \cite{kenny2014deep, lei2014, garcia2014}.
+not the same as the DNN features) \cite{lei2014, garcia2014, kenny2014deep}.
 However, this GMM is not typically
 used as a UBM; it has a minor role during i-vector extractor training.
 Promoting this supervised GMM to the role of the UBM was explored
@@ -125,7 +125,7 @@ in \cite{lei2014}, but it did not improve on their baseline.
 It was speculated that this is due
 to the GMM's limited ability to model phonetic information. However,
 that supervised GMM was diagonal, which possibly
-reduced its modelling compacity. In this paper we reexamine the 
+reduced its modeling capacity. In this paper we reexamine the 
 value of this supervised-GMM as a lightweight alternative to the DNN-based
 speaker recognition system, and find that it consistently outperforms the
 baseline.
@@ -139,7 +139,7 @@ SRE10 \cite{sre10}. The test consists of conversational telephone speech
 in enrollment and test utterances. In total there are 416,119 trials,
 over 98\% of which are nontarget comparisons. 
 
-The UBM and i-vector extractor training data consists male and female
+The UBM and i-vector extractor training data consists of male and female
 utterances from SWB and NIST SREs prior to 2010. The SWB data contains
 1,962 speakers and 20,905 utterances of SWB Cellular and SWB 2 
 Phases II and III. The SRE dataset consists of 3,805 speakers 
@@ -165,7 +165,7 @@ relationships. \davidnote{TODO: Why was this DNN picked?}
 The features are 40 MFCCs (without cepstral
 truncation) with 25ms frames. Cepstral mean subtraction is 
 performed over a window of
-6 seconds. Five frames are spliced together together at the
+6 seconds. Five frames are spliced together at the
 input layer and an increasingly wide context is provided to 
 subsequent hidden layers. The hidden layers use the $p$-norm (where $p=2$)
 activation function \cite{pnorm}. 
@@ -240,7 +240,7 @@ w_{k} &= \sum_{i=1}^{N}z_{k}^{(i)},\\
 
 Since the DNN output layer has 5297 senones, the supervised GMM also has 5297
 components. The supervised and unsupervised GMMs differ only
-in the UBM training proceedure. Training of the $\boldsymbol{T}$ 
+in the UBM training proceedure. Training of the $\boldsymbol{T}$ matrix
 and PLDA parameters $\boldsymbol{\Gamma}$ and $\boldsymbol{\Lambda}$ are unchanged from Section \ref{gmm_sys}.
 
 \subsection{TDNN-UBM}
@@ -280,6 +280,12 @@ the Kaldi code repository.
 
 \section{RESULTS}
 
+\begin{figure}[t]
+\centerline{\includegraphics[width=8.5cm]{fig/eer}}
+\caption{Comparison of EERs.}
+\label{fig:eer}
+\end{figure}
+
 \begin{figure}[th]
 \centerline{\includegraphics[width=8.5cm]{fig/rel}}
 \caption{Relative improvement over
@@ -316,9 +322,10 @@ GMM-5297 & 2.42 & 0.484 & 0.290 \\ \hline
 \label{gender_ind}
 \end{table}
 
-Because there isn't much of a performance difference between
-the unsupervised GMMs with 2048, 4096, and 5297 components we choose
-GMM-5297 as our primary baseline, since it has, by a small margin,
+In Tables \ref{gender_ind} and \ref{gender_dep} we see that there
+isn't much of a performance difference between
+the unsupervised GMMs with 2048, 4096 and 5297 components. 
+We choose GMM-5297 as our primary baseline, since it has, by a small margin,
 the highest gender independent results of the baseline models.
 
 \begin{table}
@@ -327,7 +334,7 @@ the highest gender independent results of the baseline models.
 \hline
 System & EER(\%) & DCF$10^{-3}$ & DCF$10^{-2}$ \\ \hline \hline
 Sup-GMM-5297 & 1.65 & 0.354 & 0.193 \\
-DNN-5297 & 1.09 & 0.214 & 0.108 \\
+TDNN-5297 & 1.09 & 0.214 & 0.108 \\
 GMM-2048 & 2.16 & 0.417 & 0.239 \\
 GMM-4096 & 1.96 & 0.414 & 0.227 \\
 GMM-5297 & 2.00 & 0.410 & 0.241 \\ \hline
@@ -338,6 +345,10 @@ GMM-5297 & 2.00 & 0.410 & 0.241 \\ \hline
 \end{table}
 
 
+Figure \ref{fig:eer} compares the EER between the GMM-5297,
+sup-GMM-5297, and TDNN-5297. The DNN-based systems achieve the best
+best results, with TDNN-5297 obtaining 1.20\% and 1.09\%
+gender independent and gender dependent EERs respectively.
 Figure \ref{fig:rel} illustrates the relative improvement of the
 TDNN and sup-GMM over the GMM-5297 baseline. Across the three
 operating points on the gender indendent and dependent systems we 
@@ -348,13 +359,8 @@ it nevertheless outperforms the baseline by a significant
 margin. In similar methods such as \cite{lei2014} and \cite{omar2010}
 the supervised-GMM did not bring any significant improvements by
 itself. Perhaps the underlying reason lies in the overall quality of
-the TDNN which the sup-GMM is based off of. Additionally, the use of
-a full-covariance may allow the sup-GMM to retain modeling capacity.
-
-Tables \ref{gender_ind} and \ref{gender_dep} detail system
-performance with gender independent and dependent models on the three
-operating points. Figure \ref{fig:eer} provides an illustration of the
-EER of the three primary systems. 
+the TDNN which the sup-GMM is based off of. Additionally, 
+full-covariance may allow the sup-GMM to retain modeling capacity.
 
 
 %\label{sec:eer}
@@ -367,11 +373,6 @@ EER of the three primary systems.
 %\end{minipage}
 %a\end{figure}
 
-\begin{figure}[t]
-\centerline{\includegraphics[width=8.5cm]{fig/eer}}
-\caption{Comparison of EERs.}
-\label{fig:eer}
-\end{figure}
 
 %\label{fig:eer}
 %\begin{figure}[htb]
@@ -497,7 +498,8 @@ a comparison of compute-cost vs. performance of the three systems.
 We explored the use of TDNNs for speaker recognition on the SRE10 task.
 We found that this DNN yields a large relative improvement over the
 unsupervised GMM baseline on EER and DCF operating points. With the
-TDNN-UBM we also achieve a 1.20\% EER, which we believe is the best
+TDNN-UBM we also achieve a 1.20\% gender independent EER, 
+which we believe is the best
 reported on the task. We also found that the supervised-GMM, normally
 of minor use in the DNN-based system, can be 
 used on its own as a fast alternative to the DNN with better performance
