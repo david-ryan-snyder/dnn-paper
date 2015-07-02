@@ -89,20 +89,20 @@ Usually a DNN trained as the acoustic model in
 an automatic speech recognition (ASR) system is repurposed for
 speaker recognition, where it assumes the role of the UBM.
 The output layer of a DNN provides soft alignments for
-phonetic content, often tied triphone states (or senones). As is standard 
-in GMM-based speaker recognition systems, these DNN posteriors are aggregated
-along with speaker recognition features to create sufficient statistics for
-i-vector extraction \cite{ivector}. The advantage of the DNN over the GMM may
+phonetic content, often tied triphone states (or senones). 
+The DNN posteriors are used in conjunction with features extracted using a 
+standard approach for speaker recognition, to create sufficient statistics
+for ivector extraction \cite{ivector}.
+The advantage of the DNN over the GMM may
 be due to its ability to directly model phonetic content, rather than an arbitrary
-acoustic space \cite{lei2014, kenny2014deep, garcia2014}. In \cite{garcia2014} it was found that
+acoustic space \cite{lei2014, garcia2014, kenny2014deep}. In \cite{garcia2014} it was found that
 improvements to DNNs in terms of ASR word error rate (WER) may translate into 
 improvements in speaker
 recognition performance. Recently, recurrent neural networks (RNN) and TDNNs \cite{tdnn} have
 outperformed traditional DNNs for a variety of LVCSR tasks \cite{lstm, saon2014, multisplice}.
 In particular, the multisplice TDNN \cite{multisplice} had an 11\% WER
-on Switchboard, better than RNN systems on the same task. 
-Our DNN is based off of \cite{multisplice}. \davidnote{TODO: Are TDNNs ever used in
-DNN-based SID? Does anyone care?}
+on Switchboard, better than RNN systems on the same task.
+Our DNN is based on \cite{multisplice}. 
 
 The DNN-based speaker recognition methods achieve excellent results, but the
 performance comes at the cost of increased computational complexity. During
@@ -152,15 +152,13 @@ We train the TDNN on roughly 1800 hours of Fisher English.
 
 The system is a 6-layer deep neural network based on the multisplice 
 time delay DNN described
-in \cite{multisplice}. In the multisplice system, a narrow temporal
+in \cite{multisplice}. This architecture is currently the recommended
+recipe in the Kaldi toolkit \cite{kaldi} for large-scale speech recognition. 
+In the multisplice system, a narrow temporal
 context is provided to the first layer and increasingly large temporal
 contexts are available to the subsequent hidden layers. The result is that
 higher levels of the network are able to learn greater temporal
-relationships. \davidnote{TODO: Why was this DNN picked?}
-%We chose this DNN because \cite{garcia2014} found that
-%a better DNN for ASR translates to improved speaker recognition
-%performance and because the multisplice system has excellent results on
-%several LVSCR tasks \cite{multisplice}.
+relationships. 
 
 The features are 40 MFCCs (without cepstral
 truncation) with 25ms frames. Cepstral mean subtraction is 
@@ -286,6 +284,18 @@ the Kaldi code repository.
 \label{fig:eer}
 \end{figure}
 
+\begin{figure}[t]
+\centerline{\includegraphics[width=8.5cm]{fig/dcf-2}}
+\caption{Comparison of DCF$10^{-2}$.}
+\label{fig:dcf_2}
+\end{figure}
+
+\begin{figure}[t]
+\centerline{\includegraphics[width=8.5cm]{fig/dcf-3}}
+\caption{Comparison of DCF$10^{-3}$.}
+\label{fig:dcf_3}
+\end{figure}
+
 \begin{figure}[th]
 \centerline{\includegraphics[width=8.5cm]{fig/rel}}
 \caption{Relative improvement over
@@ -346,7 +356,7 @@ GMM-5297 & 2.00 & 0.410 & 0.241 \\ \hline
 
 
 Figure \ref{fig:eer} compares the EER between the GMM-5297,
-sup-GMM-5297, and TDNN-5297. The DNN-based systems achieve the best
+sup-GMM-5297, and TDNN-5297. The DNN-based systems achieve the
 best results, with TDNN-5297 obtaining 1.20\% and 1.09\%
 gender independent and gender dependent EERs respectively.
 Figure \ref{fig:rel} illustrates the relative improvement of the
@@ -359,7 +369,7 @@ it nevertheless outperforms the baseline by a significant
 margin. In similar methods such as \cite{lei2014} and \cite{omar2010}
 the supervised-GMM did not bring any significant improvements by
 itself. Perhaps the underlying reason lies in the overall quality of
-the TDNN which the sup-GMM is based off of. Additionally, 
+the TDNN which the sup-GMM is based on. Additionally, 
 full-covariance may allow the sup-GMM to retain modeling capacity.
 
 
@@ -398,7 +408,7 @@ tool \texttt{time} and we only report the usr+sys portion.
 
 \begin{figure}[t]
 \centerline{\includegraphics[width=8.5cm]{fig/time}}
-\caption{Comparison of average total CPU time for system pipelines}
+\caption{CPU time relative to utterance length for each system.}
 \label{fig:time}
 \end{figure}
 
@@ -414,16 +424,22 @@ tool \texttt{time} and we only report the usr+sys portion.
 
 % TODO: Consider removing total. Note that the table is still too big
 \begin{table}
-\caption{CPU timing comparison for primary stages of the system pipelines.}
+\caption{CPU time relative to utterance length for primary stages of the system pipelines.}
 \begin{center}
 \begin{tabular}{l|cccc}
 \hline
-System & Feat.(s) & Post.(s) & i-Vec.(s) & Tot.(s) \\ \hline \hline
-Sup-GMM-5297 & 3.05 & 10.39 & 16.32 & 29.76 \\
-TDNN-5297 & 6.46 & 384.05 & 17.30 & 407.81 \\
-GMM-5297 & 3.09  & 10.33 & 15.04 & 28.46 \\
-GMM-4096 & 3.04 & 8.00 & 12.82 & 23.86 \\
-GMM-2048 & 3.04 & 5.04 & 6.85 & 14.93 \\ \hline
+%System & Feat.(s) & Post.(s) & i-Vec.(s) & Tot.(s) \\ \hline \hline
+%Sup-GMM-5297 & 3.05 & 10.39 & 16.32 & 29.76 \\
+%TDNN-5297 & 6.46 & 384.05 & 17.30 & 407.81 \\
+%GMM-5297 & 3.09  & 10.33 & 15.04 & 28.46 \\
+%GMM-4096 & 3.04 & 8.00 & 12.82 & 23.86 \\
+%GMM-2048 & 3.04 & 5.04 & 6.85 & 14.93 \\ \hline
+System & Feat.(\%) & Post.(\%) & i-Vec.(\%) & Tot.(\%) \\ \hline \hline
+Sup-GMM-5297 & 1.02 & 3.46 & 5.44 & 9.92 \\
+TDNN-5297 & 2.15 & 128.02 & 5.77 & 135.94 \\
+GMM-5297 & 1.03 & 3.44 & 5.01 & 9.49 \\
+GMM-4096 & 1.01 & 2.67 & 4.27 & 7.95 \\
+GMM-2048 & 1.01 & 1.68 & 2.28 & 4.98 \\ \hline
 \end{tabular}
 \end{center}
 \label{timing}
