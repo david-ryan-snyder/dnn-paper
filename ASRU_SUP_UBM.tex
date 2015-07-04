@@ -200,7 +200,7 @@ SWB + SRE for 5 iterations of EM. In Figure \ref{fig:gmm_schema} the PLDA
 backend also includes the i-vector mean $\boldsymbol{m}$ subtraction and
 length normalization. The between-class and within-class
 covariance matrices $\boldsymbol{\Gamma}$ and $\boldsymbol{\Lambda}$ of the PLDA backened along with
-the vector $\boldsymbol{m}$ are trained on the SRE dataset described 
+the vector $\boldsymbol{m}$ are estimated from the SRE dataset described 
 in Section \ref{datasets}.
 
 \subsection{Supervised GMM-UBM}
@@ -255,7 +255,7 @@ features are reused to filter the posteriors of the network.
 \subsection{System Design}
 Experiments used ASR and speaker recognition modules in the
 Kaldi speech recognition toolkit \cite{kaldi}. The recipes are
-available in in the Kaldi code repository.
+available in the Kaldi code repository.
 
 \section{RESULTS}
 \begin{table}
@@ -399,7 +399,7 @@ larger GMMs with 4096 or 5297 components during posterior and i-vector
 extraction. Even without
 parallelization the GMM-based systems are at least ten times faster than
 real-time. Since the TDNN system needs to compute features for both the
-DNN and for speaker recognition this stage of the pipeline is about twice
+DNN and for speaker recognition, this stage of the pipeline is about twice
 as slow as the GMM-based systems.
 Without parallelization, the vast majority of the DNN-based system is spent 
 in posterior calculation. This results in a system which is nearly 36\% slower 
