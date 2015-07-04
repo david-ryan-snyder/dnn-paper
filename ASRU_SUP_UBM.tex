@@ -20,7 +20,6 @@
 
 % Title.
 % ------
-\title{A lightweight deep neural network-based universal background model for speaker recognition}
 \title{Time delay deep neural network-based universal background models for speaker recognition}
 %
 % Single address.
@@ -92,7 +91,7 @@ The output layer of a DNN provides soft alignments for
 phonetic content, often tied triphone states (or senones). 
 The DNN posteriors are used in conjunction with features extracted using a 
 standard approach for speaker recognition, to create sufficient statistics
-for ivector extraction \cite{ivector}.
+for i-vector extraction \cite{ivector}.
 The advantage of the DNN over the GMM may
 be due to its ability to directly model phonetic content, rather than an arbitrary
 acoustic space \cite{lei2014, garcia2014, kenny2014deep}. In \cite{garcia2014} it was found that
@@ -109,7 +108,7 @@ performance comes at the cost of increased computational complexity. During
 i-vector extraction, the role of the UBM is to produce frame-level posteriors.
 For a DNN, the computation is nontrivial. In a resource limited application
 that nonetheless requires realtime performance, the DNN-based system may
-not be practical. Ideally, a supervised GMM could be created with the 
+be impractical. Ideally, a supervised-GMM could be created with the 
 speed of the traditional GMM-based UBM but with heightened phonetic awareness.
 In \cite{omar2010} a GMM-based ASR acoustic model replaced the usual GMM-UBM
 to create a phonetically aware GMM, but the improvements were only consistent
@@ -144,8 +143,9 @@ utterances from SWB and NIST SREs prior to 2010. The SWB data contains
 1,962 speakers and 20,905 utterances of SWB Cellular and SWB 2 
 Phases II and III. The SRE dataset consists of 3,805 speakers 
 and 36,614 utterances.
-The PLDA backend is trained only on the SRE data. 
-We train the TDNN on roughly 1800 hours of Fisher English.
+The PLDA backend is trained only on the SRE data. About 1,800 hours
+of the english portion of Fisher \cite{fisher} is
+used to train the TDNN.
 
 \subsection{DNN Recipe}
 \label{dnn_recipe}
@@ -181,16 +181,6 @@ fMLLR or i-vectors are used for speaker adaptation.
 \caption{GMM-based speaker recognition schema.}
 \label{fig:gmm_schema}
 \end{figure}
-
-%\begin{figure}[htb]
-%\label{fig:gmm_sys}
-%\begin{minipage}[b]{1.0\linewidth}
-%  \centering
-%  \centerline{\includegraphics[width=8.5cm]{fig/baseline_schema}}
-%  \vspace{2.0cm}
-%  \centerline{GMM-based speaker recognition schema.}\medskip
-%\end{minipage}
-%\end{figure}
 
 The UBM in our baseline system illustrated in Figure \ref{fig:gmm_schema} 
 is a full-covariance
@@ -249,18 +239,9 @@ and PLDA parameters $\boldsymbol{\Gamma}$ and $\boldsymbol{\Lambda}$ are unchang
 \label{fig:dnn_schema}
 \end{figure}
 
-%\label{fig:dnn_schema}
-%\begin{figure}[htb]
-%\begin{minipage}[b]{1.0\linewidth}
-%  \centering
-%  \centerline{\includegraphics[width=8.5cm]{fig/dnn_schema}}
-%  \vspace{2.0cm}
-%  \centerline{TDNN-based speaker recognition schema.}\medskip
-%\end{minipage}
-%\end{figure}
-
-The TDNN system uses the supervised-GMM described in the preceding 
-section to initialize the i-vector extractor $\boldsymbol{T}$ matrix.
+The TDNN system uses the supervised-GMM described in 
+section \ref{sup_gmm_sys} to initialize the i-vector 
+extractor $\boldsymbol{T}$ matrix.
 However, updating the $\boldsymbol{T}$ matrix and extracting 
 i-vectors uses DNN posteriors and 
 speaker recognition features. As in Sections \ref{gmm_sys} and \ref{sup_gmm_sys},
@@ -272,11 +253,41 @@ features are reused to filter the posteriors of the network.
 
 \subsection{System Design}
 Experiments used ASR and speaker recognition modules in the
-Kaldi speech recognition toolkit \cite{kaldi}. The multisplice
-DNN recipe and our speaker recognition systems are available in
-the Kaldi code repository.
+Kaldi speech recognition toolkit \cite{kaldi}. The recipes are
+available in in the Kaldi code repository.
 
 \section{RESULTS}
+\begin{table}
+\begin{center}
+\begin{tabular}{l|ccc}
+\hline
+System & EER(\%) & DCF$10^{-3}$ & DCF$10^{-2}$ \\ \hline \hline
+Sup-GMM-5297 & 1.94 & 0.388 & 0.213 \\
+TDNN-5297 & 1.20 & 0.216 & 0.123 \\
+GMM-2048 & 2.49 & 0.496 & 0.288 \\
+GMM-4096 & 2.56 & 0.468 & 0.287 \\
+GMM-5297 & 2.42 & 0.484 & 0.290 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Performance comparison of gender independent models on SRE10 C5.}
+\label{gender_ind}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{l|ccc}
+\hline
+System & EER(\%) & DCF$10^{-3}$ & DCF$10^{-2}$ \\ \hline \hline
+Sup-GMM-5297 & 1.65 & 0.354 & 0.193 \\
+TDNN-5297 & 1.09 & 0.214 & 0.108 \\
+GMM-2048 & 2.16 & 0.417 & 0.239 \\
+GMM-4096 & 1.96 & 0.414 & 0.227 \\
+GMM-5297 & 2.00 & 0.410 & 0.241 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Performance comparison of gender dependent models on SRE10 C5.}
+\label{gender_dep}
+\end{table}
 
 \begin{figure}[t]
 \centerline{\includegraphics[width=8.5cm]{fig/eer}}
@@ -303,7 +314,6 @@ the Kaldi code repository.
 \label{fig:rel}
 \end{figure}
 
-
 We compare gender independent and gender dependent versions of the
 baseline GMM, sup-GMM and TDNN systems. The gender independent
 systems each have a single pipeline which evaluates all of the SRE10
@@ -316,47 +326,15 @@ overly large
 tables we only report the performance for pooled gender dependent
 and independent scores.
 
-\begin{table}
-\begin{center}
-\begin{tabular}{l|ccc}
-\hline
-System & EER(\%) & DCF$10^{-3}$ & DCF$10^{-2}$ \\ \hline \hline
-Sup-GMM-5297 & 1.94 & 0.388 & 0.213 \\
-TDNN-5297 & 1.20 & 0.216 & 0.123 \\
-GMM-2048 & 2.49 & 0.496 & 0.288 \\
-GMM-4096 & 2.56 & 0.468 & 0.287 \\
-GMM-5297 & 2.42 & 0.484 & 0.290 \\ \hline
-\end{tabular}
-\end{center}
-\caption{Performance comparison of gender independent models on SRE10 C5.}
-\label{gender_ind}
-\end{table}
-
 In Tables \ref{gender_ind} and \ref{gender_dep} we see that there
 isn't much of a performance difference between
 the unsupervised GMMs with 2048, 4096 and 5297 components. 
 We choose GMM-5297 as our primary baseline, since it has, by a small margin,
 the highest gender independent results of the baseline models.
 
-\begin{table}
-\begin{center}
-\begin{tabular}{l|ccc}
-\hline
-System & EER(\%) & DCF$10^{-3}$ & DCF$10^{-2}$ \\ \hline \hline
-Sup-GMM-5297 & 1.65 & 0.354 & 0.193 \\
-TDNN-5297 & 1.09 & 0.214 & 0.108 \\
-GMM-2048 & 2.16 & 0.417 & 0.239 \\
-GMM-4096 & 1.96 & 0.414 & 0.227 \\
-GMM-5297 & 2.00 & 0.410 & 0.241 \\ \hline
-\end{tabular}
-\end{center}
-\caption{Performance comparison of gender dependent models on SRE10 C5.}
-\label{gender_dep}
-\end{table}
-
-
-Figure \ref{fig:eer} compares the EER between the GMM-5297,
-sup-GMM-5297, and TDNN-5297. The DNN-based systems achieve the
+Figures \ref{fig:eer}, \ref{fig:dcf_2}, and \ref{fig:dcf_3}
+compare the performance among the GMM-5297,
+sup-GMM-5297 and TDNN-5297 systems. The DNN-based systems achieve the
 best results, with TDNN-5297 obtaining 1.20\% and 1.09\%
 gender independent and gender dependent EERs respectively.
 Figure \ref{fig:rel} illustrates the relative improvement of the
@@ -367,44 +345,10 @@ by the sup-GMM and 47.80\%-57.59\% by the TDNN. Although
 the performance of the sup-GMM is less than the TDNN,
 it nevertheless outperforms the baseline by a significant
 margin. In similar methods such as \cite{lei2014} and \cite{omar2010}
-the supervised-GMM did not bring any significant improvements by
+the supervised-GMM did not result in a significant improvement by
 itself. Perhaps the underlying reason lies in the overall quality of
 the TDNN which the sup-GMM is based on. Additionally, 
 full-covariance may allow the sup-GMM to retain modeling capacity.
-
-
-%\label{sec:eer}
-%\begin{figure}[htb]
-%\begin{minipage}[b]{1.0\linewidth}
-%  \centering
-%  \centerline{\includegraphics[width=8.5cm]{fig/eer}}
-%  \vspace{2.0cm}
-%  \centerline{Comparison of EERs.}\medskip
-%\end{minipage}
-%a\end{figure}
-
-
-%\label{fig:eer}
-%\begin{figure}[htb]
-%\begin{minipage}[b]{1.0\linewidth}
-%  \centering
-%  \centerline{\includegraphics[width=8.5cm]{fig/eer}}
-%  \vspace{2.0cm}
-%  \centerline{Comparison of EERs.}\medskip
-%\end{minipage}
-%:\end{figure}
-
-
-The primary advantage of a GMM-based method over a DNN-based method is
-in its computational efficiency during i-vector extraction. Table \ref{timing} and 
-Figure \ref{fig:time} show the average amount of
-time to process a 5 minute utterance, broken down by different
-parts of the pipeline. Ten 5 minute utterances were selected at random from the SRE10 test and each system
-processed these utterances from feature extraction to i-vector extraction
-30 times. The experiment was performed on an
- Intel x86-64 machine with 48 2000Mhz
-CPUs. The duration was recorded by the Linux
-tool \texttt{time} and we only report the usr+sys portion. 
 
 \begin{figure}[t]
 \centerline{\includegraphics[width=8.5cm]{fig/time}}
@@ -412,15 +356,18 @@ tool \texttt{time} and we only report the usr+sys portion.
 \label{fig:time}
 \end{figure}
 
-%\label{sec:timing}
-%\begin{figure}[htb]
-%\begin{minipage}[b]{1.0\linewidth}
-%  \centering
-%  \centerline{\includegraphics[width=8.5cm]{fig/time}}
-%  \vspace{2.0cm}
-%  \centerline{Comparison of average total CPU time for system pipelines }\medskip
-%\end{minipage}
-%\end{figure}
+The primary advantage of a GMM-based method lies in its
+efficiency during i-vector extraction. Using the sum of the \texttt{usr}
+and \texttt{sys}
+portions of the Linux tool \texttt{time} we recorded the duration of
+different parts of the system pipelines. In Table \ref{timing} and
+Figure \ref{fig:time} we represent this in terms of real-time factors.
+Ten 5 minute utterances
+were selected at random from the SRE10 test data and these were processed
+and timed from feacture extraction to i-vector extraction 30 times. The
+experiment was performed on an Intel x86-64 machine with 48 2000Mhz CPUs.
+The real-time factors were obtained by taking the average durations In CPU and
+dividing by the total utterance length. 
 
 % TODO: Consider removing total. Note that the table is still too big
 \begin{table}
@@ -445,21 +392,23 @@ GMM-2048 & 1.01 & 1.68 & 2.28 & 4.98 \\ \hline
 \label{timing}
 \end{table}
 
+
 The GMM-2048 system is about twice as fast as the
 larger GMMs with 4096 or 5297 components during posterior and i-vector
-extraction. Since the TDNN system needs to compute features for both the
+extraction. Even without
+parallelization the GMM-based systems are at least ten times faster than
+real-time. Since the TDNN system needs to compute features for both the
 DNN and for speaker recognition this stage of the pipeline is about twice
-as slow. The vast majority of the computation is spent in
-the posterior calculation and is about 10x heavier than the GMM-5297 system.
-We see that the computational cost of the sup-GMM-5297 system is comparable
-to the GMM-5297 baseline.
+as slow as the GMM-based systems.
+Without parallelization, the vast majority of the DNN-based system is spent 
+in posterior calculation. This results in a system which is nearly 36\% slower 
+than real-time, and more than ten times slower than the sup-GMM-5297.
 
 In practice we would perform the DNN posterior matrix calculations in
-CUDA.
-However, by comparing the total CPU time between the systems, we can
+CUDA to obtain faster than real-time performance.
+However, by comparing the total CPU time between the systems, we
 better expose the overall computational load of the DNN, and facilitate
 a comparison of compute-cost vs. performance of the three systems. 
-
 
 
 %\begin{figure*}[!t]
@@ -516,23 +465,14 @@ We found that this DNN yields a large relative improvement over the
 unsupervised GMM baseline on EER and DCF operating points. With the
 TDNN-UBM we also achieve a 1.20\% gender independent EER, 
 which we believe is the best
-reported on the task. We also found that the supervised-GMM, normally
+reported on the task. We also highlighted the computational advantages
+of the GMM over the DNN, and showed that there is a significant cost to
+computing DNN posteriors. While GPU parallelization is commonly used to
+obtain real-time performance, it may not be feasible for all applications.
+We found that the supervised-GMM, normally
 of minor use in the DNN-based system, can be 
 used on its own as a fast alternative to the DNN with better performance
 than the baseline. 
-\davidnote{TODO: Consider reflecting on the use of unique attributes
-of the TDNN for this task, and possibly comparing the relative 
-performance gains here vs related work.}
-
-%Although the baseline GMM systems provide
-%similar results to prior work, the improvement of our DNN-based
-%system is larger. For example, in \cite{garcia2014} the
-%DNN-2 system achieved a relative improvement of 21.55\% on the 
-%same task explored here. On a different task in \cite{lei2014}
-%there was a relative improvement of 30\%. The TDNN explored
-%here achieves a relative improvement of 50\% in EER. The relatively
-%large advantage of our DNN-based system over the baseline may
-%be due longer temporal context provided by the TDNN.
 
 % References should be produced using the bibtex program from suitable
 % BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
