@@ -65,7 +65,7 @@ We believe that the
 TDNN-based system achieves the best reported results on SRE10 and it obtains a 50\% relative 
 improvement over our GMM baseline in terms of equal error rate (EER). 
 For some applications the computational cost of a DNN is prohibitive. 
-Therefore we also investigate a lightweight alternative in which a supervised GMM is derived from
+Therefore, we also investigate a lightweight alternative in which a supervised GMM is derived from
 the TDNN posteriors. This method maintains the speed of the traditional unsupervised-GMM
 but achieves a 20\% relative improvement in EER.
 \end{abstract}
@@ -353,7 +353,7 @@ full-covariance may allow the sup-GMM to retain modeling capacity.
 
 \begin{figure}[t]
 \centerline{\includegraphics[width=8.5cm]{fig/time}}
-\caption{CPU time relative to utterance length for each system.}
+\caption{Total CPU time relative to utterance length for each system.}
 \label{fig:time}
 \end{figure}
 
@@ -374,7 +374,7 @@ dividing by the total utterance length.
 \begin{table}
 \caption{CPU time relative to utterance length for primary stages of the system pipelines.}
 \begin{center}
-\begin{tabular}{l|cccc}
+\begin{tabular}{l|ccc}
 \hline
 %System & Feat.(s) & Post.(s) & i-Vec.(s) & Tot.(s) \\ \hline \hline
 %Sup-GMM-5297 & 3.05 & 10.39 & 16.32 & 29.76 \\
@@ -382,12 +382,12 @@ dividing by the total utterance length.
 %GMM-5297 & 3.09  & 10.33 & 15.04 & 28.46 \\
 %GMM-4096 & 3.04 & 8.00 & 12.82 & 23.86 \\
 %GMM-2048 & 3.04 & 5.04 & 6.85 & 14.93 \\ \hline
-System & Feat.(\%) & Post.(\%) & i-Vec.(\%) & Tot.(\%) \\ \hline \hline
-Sup-GMM-5297 & 1.02 & 3.46 & 5.44 & 9.92 \\
-TDNN-5297 & 2.15 & 128.02 & 5.77 & 135.94 \\
-GMM-5297 & 1.03 & 3.44 & 5.01 & 9.49 \\
-GMM-4096 & 1.01 & 2.67 & 4.27 & 7.95 \\
-GMM-2048 & 1.01 & 1.68 & 2.28 & 4.98 \\ \hline
+System & Feat.(\%) & Post.(\%) & i-Vec.(\%)\\ \hline \hline
+Sup-GMM-5297 & 1.02 & 3.46 & 5.44 \\
+TDNN-5297 & 2.15 & 128.02 & 5.77  \\
+GMM-5297 & 1.03 & 3.44 & 5.01 \\
+GMM-4096 & 1.01 & 2.67 & 4.27 \\
+GMM-2048 & 1.01 & 1.68 & 2.28 \\ \hline
 \end{tabular}
 \end{center}
 \label{timing}
@@ -402,7 +402,7 @@ real-time. Since the TDNN system needs to compute features for both the
 DNN and for speaker recognition, this stage of the pipeline is about twice
 as slow as the GMM-based systems.
 Without parallelization, the vast majority of the DNN-based system is spent 
-in posterior calculation. This results in a system which is nearly 36\% slower 
+in the posterior calculation. This results in a system which is nearly 36\% slower 
 than real-time, and more than ten times slower than the sup-GMM-5297.
 
 In practice we would perform the DNN posterior matrix calculations in
