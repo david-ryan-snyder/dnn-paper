@@ -13,19 +13,13 @@
 \def\x{{\mathbf x}}
 \def\L{{\cal L}}
 
-% TODO, remove this later
-\usepackage{xcolor}
-\newcommand\davidnote[1]{\textcolor{red}{#1}}
-% Remove later ^
-
-
 % Title.
 % ------
-\title{Time delay deep neural network-based universal background models for speaker recognition}
+\title{Time delay deep neural network-based universal background models for speaker recognition\vspace{-1ex}}
 %
 % Single address.
 % ---------------
-\name{David Snyder, Daniel Garcia-Romero, Daniel Povey\thanks{This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. 1232825. Any opinion, findings, and conclusions or recommendations expressed in this material are those of the authors(s) and do not necessarily reflect the views of the National Science Foundation.}}
+\name{David Snyder, Daniel Garcia-Romero, Daniel Povey\vspace{-1ex}\thanks{This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. 1232825. Any opinion, findings, and conclusions or recommendations expressed in this material are those of the authors(s) and do not necessarily reflect the views of the National Science Foundation.}}
 \address{Center for Language and Speech Processing \& Human Language Technology Center of Excellence\\
 The Johns Hopkins University, Baltimore, MD 21218, USA\\
 {\small \tt david.ryan.snyder@gmail.com, dgromero@jhu.edu, dpovey@gmail.com}}
@@ -52,42 +46,44 @@ The Johns Hopkins University, Baltimore, MD 21218, USA\\
 \begin{document}
 %\ninept
 %
+%\topmargin=-20mm
 \maketitle
 %
 \begin{abstract}
 
 Recently, deep neural networks (DNN) have been incorporated into i-vector-based speaker
-recognition systems, where they have achieved state-of-the-art performance. In these
-systems, a DNN replaces the Gaussian mixture model (GMM) as the universal background
-model (UBM). In this study the DNN is a recently developed time delay deep neural network
+recognition systems, where they have significantly improved state-of-the-art performance. In these
+systems, a DNN is used to collect sufficient statistics for i-vector extraction.
+In this study, the DNN is a recently developed time delay deep neural network
 (TDNN) that has achieved promising results in LVCSR tasks. 
 We believe that the
 TDNN-based system achieves the best reported results on SRE10 and it obtains a 50\% relative 
 improvement over our GMM baseline in terms of equal error rate (EER). 
-For some applications the computational cost of a DNN is prohibitive. 
+For some applications, the computational cost of a DNN is high. 
 Therefore, we also investigate a lightweight alternative in which a supervised GMM is derived from
-the TDNN posteriors. This method maintains the speed of the traditional unsupervised-GMM
+the TDNN posteriors. This method maintains the speed of the traditional unsupervised-GMM,
 but achieves a 20\% relative improvement in EER.
 \end{abstract}
 %
 \begin{keywords}
-speaker recognition, deep neural networks, time delay neural networks
+speaker recognition, deep neural networks, time delay neural networks, i-vector
 \end{keywords}
 %
+\vspace{12mm}
 \section{Introduction}
 \label{sec:intro}
 
 Modern speaker recogntion systems are based on i-vectors \cite{ivector}.
 In this paradigm, a universal background model (UBM) is used to collect
-sufficient statistics for i-vector extraction and a probabilistic 
+sufficient statistics for i-vector extraction, and a probabilistic 
 linear discriminant analysis (PLDA) backend computes a similarity score between i-vectors
  \cite{plda_prince, brummer2010speaker, kenny2010bayesian, villalba2011towards, garcia2011analysis, garcia2012multicondition}.
 
 Recent speaker recognition systems have improved performance by replacing 
-the GMM-based UBM with a DNN \cite{lei2014, garcia2014}. 
+the GMM with a DNN to collect sufficient statistics (SS) \cite{lei2014, garcia2014}. 
 Usually a DNN trained as the acoustic model in
 an automatic speech recognition (ASR) system is repurposed for
-speaker recognition, where it assumes the role of the UBM.
+speaker recognition, where it assumes the role of the UBM for SS collection.
 The output layer of a DNN provides soft alignments for
 phonetic content, often tied triphone states (or senones). 
 The DNN posteriors are used in conjunction with features extracted using a 
@@ -119,12 +115,12 @@ Usually DNN-based speaker recognition systems employ a supervised-GMM
 derived from the DNN posteriors and speaker recognition features (often
 not the same as the DNN features) \cite{lei2014, garcia2014, kenny2014deep}.
 However, this GMM is not typically
-used as a UBM; it has a minor role during i-vector extractor training.
-Promoting this supervised GMM to the role of the UBM was explored
+used to collect SS; it has a minor role during i-vector extractor training.
+Promoting this supervised-GMM to the role of the UBM was explored
 in \cite{lei2014}, but it did not improve on their baseline.
 It was speculated that this is due
 to the GMM's limited ability to model phonetic information. However,
-that supervised GMM was diagonal, which possibly
+that GMM was diagonal, which possibly
 reduced its modeling capacity. In this paper we reexamine the 
 value of this supervised-GMM as a lightweight alternative to the DNN-based
 speaker recognition system, and find that it consistently outperforms the
@@ -196,7 +192,7 @@ full-covariance GMM is initially a diagonal
 covariance GMM which is trained for 4 iterations of EM followed by
 an additional 4 iterations using a full-covariance matrix.
  A 600 dimensional i-vector extractor is also trained on 
-SWB + SRE for 5 iterations of EM. In Figure \ref{fig:gmm_schema} the PLDA
+SWB and SRE for 5 iterations of EM. In Figure \ref{fig:gmm_schema} the PLDA
 backend also includes the i-vector mean $\boldsymbol{m}$ subtraction and
 length normalization. The between-class and within-class
 covariance matrices $\boldsymbol{\Gamma}$ and $\boldsymbol{\Lambda}$ of the PLDA backened along with
@@ -206,14 +202,14 @@ in Section \ref{datasets}.
 \subsection{Supervised GMM-UBM}
 \label{sup_gmm_sys}
 
-To create the supervised-GMM, DNN posteriors from the system in Section \ref{dnn_recipe}
+To create the supervised-GMM, posteriors from the TDNN described in Section \ref{dnn_recipe}
 and speaker recognition
-features described in Section \ref{gmm_sys} are computed on the training data (SWB + SRE)
+features described in Section \ref{gmm_sys} are computed on the training data (SWB and SRE)
  using the
-equations in \ref{eq:sup_gmm_eq}. The DNN parameters are collectively
+equations in (\ref{eq:sup_gmm_eq}). The DNN parameters are collectively
 labeled $\boldsymbol{\Theta}$ and 
 $Pr(k \mid \boldsymbol{y}_{i}, \boldsymbol{\Theta})$ is the
-probability of senone $k$ given the DNN features $\boldsymbol{y}_{i}$. The
+probability of senone $k$ at frame $i$ given the DNN features $\boldsymbol{y}_{i}$. The
 corresponding speaker recognition features are denoted $\boldsymbol{x}_{i}$.
 In contrast to \cite{lei2014}, our supervised-GMM is full-covariance.
 
@@ -240,7 +236,8 @@ and PLDA parameters $\boldsymbol{\Gamma}$ and $\boldsymbol{\Lambda}$ are unchang
 \label{fig:dnn_schema}
 \end{figure}
 
-The TDNN system uses the supervised-GMM described in 
+The TDNN system, illustrated in Figure \ref{fig:dnn_schema},
+uses the supervised-GMM described in 
 section \ref{sup_gmm_sys} to initialize the i-vector 
 extractor $\boldsymbol{T}$ matrix.
 However, updating the $\boldsymbol{T}$ matrix and extracting 
@@ -248,7 +245,7 @@ i-vectors uses DNN posteriors and
 speaker recognition features. As in Sections \ref{gmm_sys} and \ref{sup_gmm_sys},
  the i-vectors are 600 dimensional and the PLDA backend is the same.
 
-In order to maintain the correct temporal context for the DNN, VAD
+In order to maintain the correct temporal context for the TDNN, VAD
 is not used at the frontend. Instead, the voice activity detection from the speaker recognition
 features are reused to filter the posteriors of the network.
 
@@ -331,7 +328,7 @@ In Tables \ref{gender_ind} and \ref{gender_dep} we see that there
 isn't much of a performance difference between
 the unsupervised GMMs with 2048, 4096 and 5297 components. 
 We choose GMM-5297 as our primary baseline, since it has, by a small margin,
-the highest gender independent results of the baseline models.
+the best gender independent results of the baseline models.
 
 Figures \ref{fig:eer}, \ref{fig:dcf_2}, and \ref{fig:dcf_3}
 compare the performance among the GMM-5297,
@@ -340,7 +337,7 @@ best results, with TDNN-5297 obtaining 1.20\% and 1.09\%
 gender independent and gender dependent EERs respectively.
 Figure \ref{fig:rel} illustrates the relative improvement of the
 TDNN and sup-GMM over the GMM-5297 baseline. Across the three
-operating points on the gender indendent and dependent systems we 
+operating points with the gender independent and dependent systems we 
 see a relative improvement of 13.65\%-26.55\%
 by the sup-GMM and 47.80\%-57.59\% by the TDNN. Although
 the performance of the sup-GMM is less than the TDNN,
@@ -362,11 +359,14 @@ efficiency during i-vector extraction. Using the sum of the \texttt{usr}
 and \texttt{sys}
 portions of the Linux tool \texttt{time} we recorded the duration of
 different parts of the system pipelines. In Table \ref{timing} and
-Figure \ref{fig:time} we represent this in terms of real-time factors.
+Figure \ref{fig:time}, we represent this in terms of real-time factors.
 Ten 5 minute utterances
 were selected at random from the SRE10 test data and these were processed
-and timed from feacture extraction to i-vector extraction 30 times. The
-experiment was performed on an Intel x86-64 machine with 48 2000Mhz CPUs.
+and timed from feacture extraction to i-vector extraction 30 times. 
+In Table \ref{timing} and
+Figure \ref{fig:time}, i-vector extraction
+includes all computation needed to generate an i-vector after posteriors and features
+have been computed. The experiment was performed on an Intel x86-64 machine with 48 2000Mhz CPUs.
 The real-time factors were obtained by taking the average durations In CPU and
 dividing by the total utterance length. 
 
@@ -407,8 +407,8 @@ than real-time, and more than ten times slower than the sup-GMM-5297.
 
 In practice we would perform the DNN posterior matrix calculations in
 CUDA to obtain faster than real-time performance.
-However, by comparing the total CPU time between the systems, we
-better expose the overall computational load of the DNN, and facilitate
+However, by comparing the total CPU time between the systems, we 
+expose the overall computational load of the DNN, and facilitate
 a comparison of compute-cost vs. performance of the three systems. 
 
 
