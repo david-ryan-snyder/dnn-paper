@@ -81,7 +81,7 @@ linear discriminant analysis (PLDA) backend computes a similarity score between 
 
 Recent speaker recognition systems have improved performance by replacing 
 the GMM with a DNN to collect sufficient statistics (SS) \cite{lei2014, garcia2014}. 
-Usually a DNN trained as the acoustic model in
+Usually, a DNN trained as the acoustic model in
 an automatic speech recognition (ASR) system is repurposed for
 speaker recognition, where it assumes the role of the UBM for SS collection.
 The output layer of a DNN provides soft alignments for
@@ -111,7 +111,7 @@ In \cite{omar2010} a GMM-based ASR acoustic model replaced the usual GMM-UBM
 to create a phonetically aware GMM, but the improvements were only consistent
 during model combination \cite{omar2010}.
 
-Usually DNN-based speaker recognition systems employ a supervised-GMM
+Usually, DNN-based speaker recognition systems employ a supervised-GMM
 derived from the DNN posteriors and speaker recognition features (often
 not the same as the DNN features) \cite{lei2014, garcia2014, kenny2014deep}.
 However, this GMM is not typically
@@ -362,7 +362,7 @@ different parts of the system pipelines. In Table \ref{timing} and
 Figure \ref{fig:time}, we represent this in terms of real-time factors.
 Ten 5 minute utterances
 were selected at random from the SRE10 test data and these were processed
-and timed from feacture extraction to i-vector extraction 30 times. 
+and timed from feature extraction to i-vector extraction 30 times. 
 In Table \ref{timing} and
 Figure \ref{fig:time}, i-vector extraction
 includes all computation needed to generate an i-vector after posteriors and features
@@ -467,7 +467,7 @@ unsupervised GMM baseline on EER and DCF operating points. With the
 TDNN-UBM we also achieve a 1.20\% gender independent EER, 
 which we believe is the best
 reported on the task. We also highlighted the computational advantages
-of the GMM over the DNN, and showed that there is a significant cost to
+of the GMM over the DNN, and showed that there is a significant cost for
 computing DNN posteriors. While GPU parallelization is commonly used to
 obtain real-time performance, it may not be feasible for all applications.
 We found that the supervised-GMM, normally
