@@ -78,16 +78,17 @@ In this paradigm, a universal background model (UBM) is used to collect
 sufficient statistics for i-vector extraction, and a probabilistic 
 linear discriminant analysis (PLDA) backend computes a similarity score between i-vectors
  \cite{plda_prince, brummer2010speaker, kenny2010bayesian, villalba2011towards, garcia2011analysis, garcia2012multicondition}.
+Until recently, the UBM was commonly based on GMMs.
 
 Recent speaker recognition systems have improved performance by replacing 
-the GMM with a DNN to collect sufficient statistics (SS) \cite{lei2014, garcia2014}. 
-Usually, a DNN trained as the acoustic model in
-an automatic speech recognition (ASR) system is repurposed for
-speaker recognition, where it assumes the role of the UBM for SS collection.
+the GMM with a DNN to collect sufficient statistics (SS) for i-vector extraction \cite{lei2014, garcia2014}. 
+Usually, this DNN is trained as the acoustic model in
+an automatic speech recognition (ASR) system and is repurposed for
+speaker recognition.
 The output layer of a DNN provides soft alignments for
 phonetic content, often tied triphone states (or senones). 
-The DNN posteriors are used in conjunction with features extracted using a 
-standard approach for speaker recognition, to create sufficient statistics
+These DNN posteriors are used in conjunction with features extracted using a 
+standard approach for speaker recognition, to create the sufficient statistics
 for i-vector extraction \cite{ivector}.
 The advantage of the DNN over the GMM may
 be due to its ability to directly model phonetic content, rather than an arbitrary
@@ -152,7 +153,7 @@ time delay DNN described
 in \cite{multisplice}. This architecture is currently the recommended
 recipe in the Kaldi toolkit \cite{kaldi} for large-scale speech recognition. 
 In the multisplice system, a narrow temporal
-context is provided to the first layer and increasingly large temporal
+context is provided to the first layer and increasingly large 
 contexts are available to the subsequent hidden layers. The result is that
 higher levels of the network are able to learn greater temporal
 relationships. 
