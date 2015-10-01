@@ -74,7 +74,7 @@ speaker recognition, deep neural networks, time delay neural networks, i-vector
 \section{Introduction}
 \label{sec:intro}
 
-Modern speaker recogntion systems are based on i-vectors \cite{ivector}.
+Modern speaker recognition systems are based on i-vectors \cite{ivector}.
 In this paradigm, a universal background model (UBM) is used to collect
 sufficient statistics for i-vector extraction, and a probabilistic 
 linear discriminant analysis (PLDA) backend computes a similarity score between i-vectors
@@ -271,14 +271,14 @@ The primary difference between this and earlier work
 is our utilization of the time delay DNN architecture.
 The supervised-GMM (Section \ref{sup_gmm_sys}) fills the role
 of the ancillary GMM of \cite{garcia2014}.
-The parameters of the supervised-GMM 
-are used to initalize quantities needed to train the
+The parameters of the supervised-GMM are needed to 
+initialize quantities required to train the
 i-vector extractor $\boldsymbol{T}$ matrix. 
 
  
 The only difference between this system and the preceding
 GMM-based system is the model used to compute frame-level posteriors.
-Here, TDNN posteriors and speaker recogntion features are used for both
+Here, TDNN posteriors and speaker recognition features are used for both
 i-vector extractor training and for computing enrollment and
 test i-vectors.
 The speaker recognition features are not the same as those used
