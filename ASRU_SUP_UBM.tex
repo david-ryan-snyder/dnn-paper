@@ -7,6 +7,7 @@
 \usepackage{multirow}
 \usepackage{caption,subcaption}
 \usepackage{url}
+\usepackage{hyperref}
 
 % Example definitions.
 % --------------------
@@ -294,7 +295,8 @@ backend is trained just on the in-domain SRE data.
 Experiments used ASR and speaker recognition modules in the
 Kaldi speech recognition toolkit \cite{kaldi}. Recipes for
 the systems described here are available in the SRE10
-example of the Kaldi code repository (\url{https://github.com/kaldi-asr/kaldi/tree/master/egs/sre10}).
+example of the Kaldi code repository 
+(\href{https://github.com/kaldi-asr/kaldi/tree/master/egs/sre10}{https://github.com/kaldi-asr/kaldi/tree/master/egs/sre10}).
 
 \section{RESULTS}
 \begin{table}
@@ -372,8 +374,9 @@ with the probability of the target speaker set to $10^{-2}$ and $10^{-3}$.
 In Tables \ref{gender_ind} and \ref{gender_dep} we see that there
 isn't much of a performance difference between
 the unsupervised GMMs with 2048, 4096 and 5297 components. 
-We choose GMM-5297 as our primary baseline, since it has, by a small margin,
-the best gender independent results of the baseline models.
+We choose GMM-5297 as our primary baseline, since it has, 
+by a small margin,
+the best gender independent EER of the baseline models.
 
 Figures \ref{fig:eer}, \ref{fig:dcf_2}, and \ref{fig:dcf_3}
 compare the performance among the GMM-5297,
