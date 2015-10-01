@@ -141,32 +141,41 @@ utterances from SWB and NIST SREs prior to 2010. The SWB data contains
 1,962 speakers and 20,905 utterances of SWB Cellular and SWB 2 
 Phases II and III. The SRE dataset consists of 3,805 speakers 
 and 36,614 utterances.
-The PLDA backend is trained only on the SRE data. About 1,800 hours
+To create in-domain systems, the PLDA backends 
+are trained only on the SRE data. About 1,800 hours
 of the english portion of Fisher \cite{fisher} is
 used to train the TDNN.
 
 \subsection{DNN Recipe}
 \label{dnn_recipe}
 
-The system is a 6-layer deep neural network based on the multisplice 
+The system is based on the multisplice 
 time delay DNN described
 in \cite{multisplice}. This architecture is currently the recommended
 recipe in the Kaldi toolkit \cite{kaldi} for large-scale speech recognition. 
 In the multisplice system, a narrow temporal
-context is provided to the first layer and increasingly large 
+context is provided to the first layer and increasingly wide
 contexts are available to the subsequent hidden layers. The result is that
 higher levels of the network are able to learn greater temporal
 relationships. 
 
-The features are 40 MFCCs (without cepstral
-truncation) with 25ms frames. Cepstral mean subtraction is 
+The features are 40 MFCCs without cepstral
+truncation and with a frame-length of 25ms. 
+These features are equivalent to filterbanks, but
+are more compressible. Cepstral mean subtraction is 
 performed over a window of
-6 seconds. Five frames are spliced together at the
-input layer and an increasingly wide context is provided to 
-subsequent hidden layers. The hidden layers use the $p$-norm (where $p=2$)
-activation function \cite{pnorm}. 
-To facilitate faster computation, the size of the network is reduced
-from what is described in \cite{multisplice}. The hidden layers have an 
+6 seconds. 
+
+The TDNN has six layers, and a splicing configuration similar to those described
+\cite{multisplice}. 
+Suppose $t$ is some frame. At the input layer (layer 0)
+frames $[t - 2, t + 2]$ are spliced together.
+At layers 1, 3, and 4 we splice together frames 
+$\{t-2, t+1\}$, $\{t - 3, t + 3\}$, and $\{t - 7, t + 2\}$, 
+respectively.
+In total, the DNN has a left-context of 13 and a right-context of 9.
+The hidden layers use the $p$-norm (where $p=2$)
+activation function \cite{pnorm}. The hidden layers have an 
 input dimension of 350 and an output dimension 3500. 
 The softmax output layer computes posteriors for 5297 triphone states. No
 fMLLR or i-vectors are used for speaker adaptation.
@@ -179,40 +188,54 @@ fMLLR or i-vectors are used for speaker adaptation.
 \caption{GMM-based speaker recognition schema.}
 \label{fig:gmm_schema}
 \end{figure}
-
-The UBM in our baseline system illustrated in Figure \ref{fig:gmm_schema} 
+The UBM in our baseline system (illustrated in Figure \ref{fig:gmm_schema})
 is a full-covariance
-GMM with several thousand mixture components. We compare systems with
-2048, 4096, and 5297 components. The front-end consists of 20 MFCCs which
-are mean normalized over a 3 second window, plus $\Delta$ 
-and $\Delta \Delta$ to create a 60 dimension frame-level feature vector.
-The nonspeech frames are then eliminated using
-energy-based Voice Activity Detection (VAD). The GMM is trained on SWB
-and the SRE datasets. The 
-full-covariance GMM is initially a diagonal
-covariance GMM which is trained for 4 iterations of EM followed by
-an additional 4 iterations using a full-covariance matrix.
- A 600 dimensional i-vector extractor is also trained on 
-SWB and SRE for 5 iterations of EM. In Figure \ref{fig:gmm_schema} the PLDA
-backend also includes the i-vector mean $\boldsymbol{m}$ subtraction and
-length normalization. The between-class and within-class
-covariance matrices $\boldsymbol{\Gamma}$ and $\boldsymbol{\Lambda}$ of the PLDA backened along with
-the vector $\boldsymbol{m}$ are estimated from the SRE dataset described 
-in Section \ref{datasets}.
+GMM with several thousand mixture components. We compare
+systems with 2048, 4096, and 5297 components. 
+The front-end consists of 20 MFCCs with a 25ms frame-length.
+The features are mean-normalized over a 3 second window. 
+Delta and and acceleration are appended to create 60 dimensional
+frame-level feature vectors. The nonspeech frames are then eliminated
+using energy-based voice activity detection (VAD).
+
+The GMM-UBM is trained on SWB and SRE datasets. It is initially trained
+for 4 iterations of EM using a diagonal covariance matrix
+ and then for an additional
+4 iterations with a full-covariance matrix. A 600 dimensional i-vector
+extractor is also trained on SWB and SRE for 5 iterations of EM.
+The backend consists of i-vector mean subtraction and length
+normalization, followed by PLDA scoring. To create an in-domain
+system, we estimate the i-vector mean $\boldsymbol{m}$ and the 
+between-class and within-class covariance matrices 
+$\boldsymbol{\Gamma}$ and $\boldsymbol{\Lambda}$ of the PLDA backened 
+using just the SRE dataset described in Section \ref{datasets}.
 
 \subsection{Supervised GMM-UBM}
 \label{sup_gmm_sys}
 
-To create the supervised-GMM, posteriors from the TDNN described in Section \ref{dnn_recipe}
-and speaker recognition
-features described in Section \ref{gmm_sys} are computed on the training data (SWB and SRE)
- using the
-equations in (\ref{eq:sup_gmm_eq}). The DNN parameters are collectively
+The goal of the supervised-GMM (shortened to sup-GMM) 
+is to capture phonetic information
+useful to speaker recognition in a lightweight model.
+This is
+achieved by creating a GMM based on DNN posteriors and speaker
+recognition features. In contrast to the similar model in
+ \cite{lei2014}, our sup-GMM is full-covariance. 
+The supervised and unsupervised GMMs differ only
+in the UBM training proceedure; during i-vector extraction,
+both systems follow the diagram in Figure \ref{fig:gmm_schema}.
+
+We use the TDNN described in Section \ref{dnn_recipe} to generate triphone posteriors on the SWB and SRE
+training data. Speaker
+recognition features (described in Section \ref{gmm_sys}) are also computed on this training data.
+An energy-based VAD removes features and posteriors corresponding to nonspeech frames.
+
+The mixture weights $w_{k}$, means $\boldsymbol{\mu}_{k}$ 
+and covariances $\boldsymbol{S}_{k}$ are initialized according
+to Equation (\ref{eq:sup_gmm_eq}). The DNN parameters are collectively
 labeled $\boldsymbol{\Theta}$ and 
 $Pr(k \mid \boldsymbol{y}_{i}, \boldsymbol{\Theta})$ is the
-probability of senone $k$ at frame $i$ given the DNN features $\boldsymbol{y}_{i}$. The
+probability of triphone $k$ at frame $i$ given the DNN features $\boldsymbol{y}_{i}$. The
 corresponding speaker recognition features are denoted $\boldsymbol{x}_{i}$.
-In contrast to \cite{lei2014}, our supervised-GMM is full-covariance.
 
 \begin{equation}
 \label{eq:sup_gmm_eq} 
@@ -224,9 +247,9 @@ w_{k} &= \sum_{i=1}^{N}z_{k}^{(i)},\\
 \end{split}
 \end{equation}
 
-Since the DNN output layer has 5297 senones, the supervised GMM also has 5297
-components. The supervised and unsupervised GMMs differ only
-in the UBM training proceedure. Training of the $\boldsymbol{T}$ matrix
+Since the DNN output layer has 5297 senones, the sup-GMM also has 5297
+components. 
+Training of the $\boldsymbol{T}$ matrix
 and PLDA parameters $\boldsymbol{\Gamma}$ and $\boldsymbol{\Lambda}$ are unchanged from Section \ref{gmm_sys}.
 
 \subsection{TDNN-UBM}
@@ -237,23 +260,41 @@ and PLDA parameters $\boldsymbol{\Gamma}$ and $\boldsymbol{\Lambda}$ are unchang
 \label{fig:dnn_schema}
 \end{figure}
 
-The TDNN system, illustrated in Figure \ref{fig:dnn_schema},
-uses the supervised-GMM described in 
-section \ref{sup_gmm_sys} to initialize the i-vector 
-extractor $\boldsymbol{T}$ matrix.
-However, updating the $\boldsymbol{T}$ matrix and extracting 
-i-vectors uses DNN posteriors and 
-speaker recognition features. As in Sections \ref{gmm_sys} and \ref{sup_gmm_sys},
- the i-vectors are 600 dimensional and the PLDA backend is the same.
+This system 
+uses the TDNN of Section \ref{dnn_recipe} 
+to create a UBM which directly models phonetic content.
+This system is based on the in-domain system described in 
+\cite{garcia2014} and is similar to
+those in \cite{lei2014} and \cite{kenny2014deep}.
+The primary difference between this and earlier work
+is our utilization of the time delay DNN architecture.
+The supervised-GMM (Section \ref{sup_gmm_sys}) fills the role
+of the ancillary GMM of \cite{garcia2014}.
+The parameters of the supervised-GMM 
+are used to initalize quantities needed to train the
+i-vector extractor $\boldsymbol{T}$ matrix. 
 
-In order to maintain the correct temporal context for the TDNN, VAD
-is not used at the frontend. Instead, the voice activity detection from the speaker recognition
-features are reused to filter the posteriors of the network.
+ 
+The only difference between this system and the preceding
+GMM-based system is the model used to compute frame-level posteriors.
+Here, TDNN posteriors and speaker recogntion features are used for both
+i-vector extractor training and for computing enrollment and
+test i-vectors.
+The speaker recognition features are not the same as those used
+by the DNN, as illustrated by the two 
+feature pipelines in Figure \ref{fig:dnn_schema}.
+ To maintain the correct temporal context,
+an energy-based VAD is used to retain
+just the posteriors and features corresponding to speech frames.
+As in Sections \ref{gmm_sys} and \ref{sup_gmm_sys},
+the i-vectors are 600 dimensional and the PLDA
+backend is trained just on the in-domain SRE data.
 
 \subsection{System Design}
 Experiments used ASR and speaker recognition modules in the
-Kaldi speech recognition toolkit \cite{kaldi}. The recipes are
-available in the Kaldi code repository.
+Kaldi speech recognition toolkit \cite{kaldi}. Recipes for
+the systems described here are available in the SRE10
+example of the Kaldi code repository (\url{https://github.com/kaldi-asr/kaldi/tree/master/egs/sre10}).
 
 \section{RESULTS}
 \begin{table}
@@ -324,6 +365,9 @@ dependent models on just the male or female portions of SRE10. To avoid
 overly large
 tables we only report the performance for pooled gender dependent
 and independent scores.
+We evaluate recognition performance at three operating points: 
+equal error-rate (EER) and normalized detection cost function (DCF) \cite{sre10}
+with the probability of the target speaker set to $10^{-2}$ and $10^{-3}$.
 
 In Tables \ref{gender_ind} and \ref{gender_dep} we see that there
 isn't much of a performance difference between
@@ -341,11 +385,11 @@ TDNN and sup-GMM over the GMM-5297 baseline. Across the three
 operating points with the gender independent and dependent systems we 
 see a relative improvement of 13.65\%-26.55\%
 by the sup-GMM and 47.80\%-57.59\% by the TDNN. Although
-the performance of the sup-GMM is less than the TDNN,
+the performance of the sup-GMM isn't as good as the TDNN,
 it nevertheless outperforms the baseline by a significant
 margin. In similar methods such as \cite{lei2014} and \cite{omar2010}
 the supervised-GMM did not result in a significant improvement by
-itself. Perhaps the underlying reason lies in the overall quality of
+itself. Perhaps the underlying reason lies in the high quality of
 the TDNN which the sup-GMM is based on. Additionally, 
 full-covariance may allow the sup-GMM to retain modeling capacity.
 
