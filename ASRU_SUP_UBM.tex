@@ -215,8 +215,7 @@ using just the SRE dataset described in Section \ref{datasets}.
 \label{sup_gmm_sys}
 
 The goal of the supervised-GMM (shortened to sup-GMM) 
-is to capture phonetic information
-useful to speaker recognition in a lightweight model.
+is to model phonetic content in a lightweight model.
 This is
 achieved by creating a GMM based on DNN posteriors and speaker
 recognition features. In contrast to the similar model in
@@ -264,30 +263,33 @@ and PLDA parameters $\boldsymbol{\Gamma}$ and $\boldsymbol{\Lambda}$ are unchang
 This system 
 uses the TDNN of Section \ref{dnn_recipe} 
 to create a UBM which directly models phonetic content.
-This system is based on the in-domain system described in 
+This is based on the in-domain system described in 
 \cite{garcia2014} and is similar to
 those in \cite{lei2014} and \cite{kenny2014deep}.
 The primary difference between this and earlier work
 is our utilization of the time delay DNN architecture.
 The supervised-GMM (Section \ref{sup_gmm_sys}) fills the role
 of the ancillary GMM of \cite{garcia2014}.
-The parameters of the supervised-GMM are needed to 
-initialize quantities required to train the
-i-vector extractor $\boldsymbol{T}$ matrix. 
+Parameters of the supervised-GMM are needed to 
+initialize the i-vector extractor. However,
+the sup-GMM plays no further role, and training
+of the $\boldsymbol{T}$ matrix requires only
+TDNN posteriors and
+the speaker recognition features of Section \ref{gmm_sys}
+on the SRE and SWB datasets.
 
- 
-The only difference between this system and the preceding
-GMM-based system is the model used to compute frame-level posteriors.
-Here, TDNN posteriors and speaker recognition features are used for both
-i-vector extractor training and for computing enrollment and
-test i-vectors.
-The speaker recognition features are not the same as those used
-by the DNN, as illustrated by the two 
-feature pipelines in Figure \ref{fig:dnn_schema}.
- To maintain the correct temporal context,
-an energy-based VAD is used to retain
-just the posteriors and features corresponding to speech frames.
-As in Sections \ref{gmm_sys} and \ref{sup_gmm_sys},
+
+During i-vector extraction, the only difference between this
+and the preceding GMM-based systems is the model used to
+compute posteriors. In conjunction with the speaker
+recognition features, the TDNN posteriors create the sufficient
+statistics for i-vector extraction. As in the other systems,
+the speaker recognition features are filtered using a
+frame-level VAD. However, in order to maintain the correct
+temporal context, we cannot remove frames
+from the TDNN input features. Instead, the VAD results
+are reused to filter out posteriors corresponding to 
+nonspeech frames. As in Sections \ref{gmm_sys} and \ref{sup_gmm_sys},
 the i-vectors are 600 dimensional and the PLDA
 backend is trained just on the in-domain SRE data.
 
